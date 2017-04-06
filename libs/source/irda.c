@@ -2,8 +2,8 @@
 #include "stm32f10x.h"
 
 //A7
-void motor_PWM_Init(unsigned short arr, unsigned short psc) {
-	
+void motor_PWM_Init() {
+
     RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;		//TIM3 Enable
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;		//IO Port A Enable
     RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;		//IO Port B for TIM3 Channel 3 and 4
@@ -18,8 +18,8 @@ void motor_PWM_Init(unsigned short arr, unsigned short psc) {
     GPIOB->ODR |= 1;
     GPIOB->ODR |= 1<<1;
 
-    TIM3->ARR = arr - 1;
-    TIM3->PSC = psc - 1;
+    TIM3->ARR = IR_PWM_ARR - 1;
+    TIM3->PSC = IR_PWM_PSC - 1;
 
     TIM3->CCMR1 |= 6<<4;    //CH1 Set OC1M[2:0]: PWM Mode
     TIM3->CCMR1 |= 1<<3;    //CH1 Set OC1PE: Enable
