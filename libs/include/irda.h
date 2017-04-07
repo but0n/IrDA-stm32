@@ -3,8 +3,6 @@
 #include "bit.h"
 //	NEC标准规定：红外通信的载波频率为38KHz，占空比为1:3
 
-#define IR_PWN_CLOCK	72000000	// 时钟频率72MHz
-#define IR_FRAME		38000		// 输出频率
 #define IR_PWM_ARR		90			// 计数器最大值
 #define IR_PWM_PSC		21			// 计数器分频, 控制计数器频率
 #define IR_PWM_CCR_DEF	30			// 占空比 1:3
