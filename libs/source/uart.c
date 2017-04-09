@@ -35,7 +35,7 @@ void uart_init(unsigned int pclk2, unsigned int bound) {
 	// SCB->AIRCR &= 0x05FAF8FF;	// AIRCE Key: 0x05FA
 	// SCB->AIRCR |= 0x05FA0400;	// Set up group value
 	NVIC_EnableIRQ(USART1_IRQn);
-	NVIC_SetPriority(USART1_IRQn, 0b011);
+	NVIC_SetPriority(USART1_IRQn, 0b0011);
 
 }
 
