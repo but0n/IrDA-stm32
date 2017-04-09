@@ -76,7 +76,7 @@ void uart_decode() {
 //	Each bit is a switch of IR Devices
 	char k;
 	// unsigned char stagement;
-	while(top > -1) {	// While CMD Cache Not Empty
+	while(top > -1) {	// While CMD Cache is Not Empty
 		k = pop;
 		if(ISLEGAL_NUM(k)) {	// Handle Numbers
 			gCmdCache[CMD_MAX_LENGTH - 1] |= 1 << (k - '0');	// Store number argument to the top of cmd stack

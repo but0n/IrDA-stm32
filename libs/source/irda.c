@@ -2,7 +2,7 @@
 #include "stm32f10x.h"
 
 //A7
-void motor_PWM_Init() {
+void irda_PWM_Init() {
 
     RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;		//TIM3 Enable
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;		//IO Port A Enable
