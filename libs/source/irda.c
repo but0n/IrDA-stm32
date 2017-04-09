@@ -1,5 +1,6 @@
 #include "irda.h"
 #include "stm32f10x.h"
+#include "uart.h"
 
 //A7
 void irda_PWM_Init() {
@@ -41,10 +42,30 @@ void irda_PWM_Init() {
 }
 
 void irda_EXTI_Init() {
+	NVIC_EnableIRQ(EXTI2_IRQn);
+	NVIC_SetPriority(EXTI2_IRQn, 0b0011);
 
+	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
+	RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
+
+	GPIOA->CRH &= 0xFFFFF0FF;
+	GPIOA->CRH |= 0x00000700;
+
+	AFIO->EXTICR[0] |= 0x0000;
+	EXTI->IMR |= 1<<2;
+	EXTI->RTSR |= 1<<2;
+}
+
+void EXTI2_IRQHandler(void) {
+	EXTI->IMR &= ~(1<<2);
+	UART_CR();
+	uart_sendStr("Got it !!!!!");
+	UART_CR();
+	EXTI->IMR |= 1<<2;
+	EXTI->PR |= 1<<2;
 }
 
 void irda_init() {
-	irda_PWM_Init();	// 发送功能初始化
+	// irda_PWM_Init();	// 发送功能初始化
 	irda_EXTI_Init();	// 接收功能初始化
 }
