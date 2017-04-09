@@ -15,5 +15,6 @@
 void irda_init();
 void irda_PWM_Init();  //72MHz / (arr + 1)*(psc + 1)
 void irda_EXTI_Init();
+extern void delay(volatile unsigned int count);
 
 #endif

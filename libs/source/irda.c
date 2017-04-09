@@ -61,6 +61,7 @@ void EXTI2_IRQHandler(void) {
 	UART_CR();
 	uart_sendStr("Got it !!!!!");
 	UART_CR();
+	delay(500);
 	EXTI->IMR |= 1<<2;
 	EXTI->PR |= 1<<2;
 }
