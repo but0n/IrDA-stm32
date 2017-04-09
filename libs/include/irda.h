@@ -12,6 +12,8 @@
 #define IR3 BIT_ADDR(TIM3->CCER, TIM_CCER_CC3E)
 #define IR4 BIT_ADDR(TIM3->CCER, TIM_CCER_CC4E)
 
+void irda_init();
 void irda_PWM_Init();  //72MHz / (arr + 1)*(psc + 1)
+void irda_EXTI_Init();
 
 #endif

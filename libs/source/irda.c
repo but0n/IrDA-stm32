@@ -39,3 +39,12 @@ void irda_PWM_Init() {
     TIM3->CR1 |= 1;         //Set CEN, Allow to Count
     //TIM1->BDTR |= 1<<15;  //高级定时器需要使能BDTR寄存器
 }
+
+void irda_EXTI_Init() {
+
+}
+
+void irda_init() {
+	irda_PWM_Init();	// 发送功能初始化
+	irda_EXTI_Init();	// 接收功能初始化
+}
