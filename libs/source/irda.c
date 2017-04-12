@@ -53,7 +53,7 @@ void irda_EXTI_Init() {
 
 	AFIO->EXTICR[0] |= 0x0000;
 	EXTI->IMR |= 1<<2;
-	EXTI->RTSR |= 1<<2;
+	EXTI->FTSR |= 1<<2;
 }
 
 void EXTI2_IRQHandler(void) {
