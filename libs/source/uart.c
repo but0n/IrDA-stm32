@@ -1,6 +1,7 @@
 #include "uart.h"
 #include "stm32f10x.h"
-
+#include "irda.h"
+unsigned char flag = 0;
 int top = -1;	//Stack Pointer
 char gCmdCache[CMD_MAX_LENGTH];
 
@@ -50,6 +51,7 @@ void USART1_IRQHandler(void) {
 				uart_sendStr(gCmdCache);
 				UART_CR();
 				clrCache();
+				cnt = 0;
 				break;
 			case 0x08:
 			case 0x7F:
@@ -62,6 +64,7 @@ void USART1_IRQHandler(void) {
 			default:
 				if(STACK_OVERFLOW)
 					break;
+				flag = 1;
 				push(cmd);
 				uart_sendData(cmd);
 				break;
@@ -102,4 +105,17 @@ void uart_sendData(unsigned char data) {
 void uart_sendStr(char *cmd) {
 	while(*cmd)
 		uart_sendData(*cmd++);
+}
+
+void uart_sendNum(unsigned int k) {
+	char tem[] = "00000";
+	char *result = tem;
+
+	unsigned short bit = 1;
+	while(*result) {
+		(*result++) = (char)(k / bit % 10 + '0');
+		bit *= 10;
+	}
+	for(unsigned char i = 0; i < 5; i++)
+		uart_sendData(tem[4-i]);
 }

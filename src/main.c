@@ -14,9 +14,11 @@ int main() {
 	uart_init(72, 115200);
 	irda_init();
 	while(1) {
-		uart_sendStr("Alive...");
+		while(flag);
+		uart_sendStr("Alive...\t");
+		uart_sendNum(cnt);
 		UART_CR();
-		delay(500);
+		delay(10);
 	}
 	return 0;
 }

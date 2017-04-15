@@ -2,6 +2,7 @@
 #include "stm32f10x.h"
 #include "uart.h"
 
+unsigned int cnt = 0;
 //A7
 void irda_PWM_Init() {
 
@@ -55,14 +56,12 @@ void irda_EXTI_Init() {
 	AFIO->EXTICR[0] |= 0x0000;
 	EXTI->IMR |= 1<<2;			//开放来自2号线的中断请求
 	EXTI->FTSR |= 1<<2;			//下降沿触发
+	EXTI->RTSR |= 1<<2;			//上升沿触发
 }
 
 void EXTI2_IRQHandler(void) {
 	EXTI->IMR &= ~(1<<2);	//屏蔽该中断
-	UART_CR();
-	uart_sendStr("Got it !!!!!");
-	UART_CR();
-	delay(500);
+	cnt++;
 	EXTI->IMR |= 1<<2;	//开放该中断
 	EXTI->PR |= 1<<2;	//向该位写 1 , 清除触发请求
 }
