@@ -16,7 +16,7 @@ int main() {
 	while(1) {
 		while(flag);
 		uart_sendStr("Alive...\t");
-		uart_sendNum(cnt);
+		uart_num2char(cnt);
 		UART_CR();
 		delay(10);
 	}

@@ -107,15 +107,13 @@ void uart_sendStr(char *cmd) {
 		uart_sendData(*cmd++);
 }
 
-void uart_sendNum(unsigned int k) {
-	char tem[] = "00000";
-	char *result = tem;
+void uart_num2char(unsigned short k) {
+	char cache[] = "00000";
+	int i = 4;
+	unsigned short bit[] = {10000, 1000, 100, 10, 1};
 
-	unsigned short bit = 1;
-	while(*result) {
-		(*result++) = (char)(k / bit % 10 + '0');
-		bit *= 10;
+	while(i>-1) {
+		cache[i--] += (char)(k / bit[i] % 10);
 	}
-	for(unsigned char i = 0; i < 5; i++)
-		uart_sendData(tem[4-i]);
+	uart_sendStr(cache);
 }
