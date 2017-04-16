@@ -112,9 +112,8 @@ void uart_num2char(unsigned short k) {
 	int i = 4;
 	unsigned short bit[] = {10000, 1000, 100, 10, 1};
 
-	while(i>-1) {
+	do {
 		cache[i] += (char)(k / bit[i] % 10);
-		i--;
-	}
+	} while(i--);
 	uart_sendStr(cache);
 }
