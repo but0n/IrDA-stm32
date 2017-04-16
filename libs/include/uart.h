@@ -6,7 +6,7 @@ void uart_sendData(unsigned char data);
 void uart_sendStr(char * cmd);
 void USART1_IRQHandler(void);
 void uart_decode();
-void uart_num2char(unsigned short k);
+void uart_num2char(unsigned int k);
 unsigned char flag;
 #define UART_CR() do {\
     uart_sendData(0x0D);\

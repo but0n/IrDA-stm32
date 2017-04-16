@@ -107,10 +107,10 @@ void uart_sendStr(char *cmd) {
 		uart_sendData(*cmd++);
 }
 
-void uart_num2char(unsigned short k) {
-	char cache[] = "00000";
-	int i = 4;
-	unsigned short bit[] = {10000, 1000, 100, 10, 1};
+void uart_num2char(unsigned int k) {
+	char cache[] = "0000000000";	// Max value is 4294967295
+	unsigned char i = 9;
+	unsigned int bit[] = {1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1};
 
 	do {
 		cache[i] += (char)(k / bit[i] % 10);
