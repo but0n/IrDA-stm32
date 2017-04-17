@@ -1,8 +1,7 @@
 #include "irda.h"
-#include "stm32f10x.h"
-#include "uart.h"
 
-unsigned int cnt = 0;
+ir_st g_IrDA_Device[IR_DEVICES_NUM];
+
 //A7
 void irda_PWM_Init() {
 
@@ -54,14 +53,15 @@ void irda_EXTI_Init() {
 	GPIOA->ODR |= 1<<2;			//上拉电阻
 
 	AFIO->EXTICR[0] |= 0x0000;
-	EXTI->IMR |= 1<<2;			//开放来自2号线的中断请求
 	EXTI->FTSR |= 1<<2;			//下降沿触发
 	EXTI->RTSR |= 1<<2;			//上升沿触发
 }
 
 void EXTI2_IRQHandler(void) {
-	EXTI->IMR &= ~(1<<2);	//屏蔽该中断
-	cnt++;
+	// EXTI->IMR &= ~(1<<2);	//屏蔽该中断
+	*(g_IrDA_Device[0].IrInterrup) = 0;
+	irda_decode(&g_IrDA_Device[0]);
+	uart_sendStr("Got it !");
 	EXTI->IMR |= 1<<2;	//开放该中断
 	EXTI->PR |= 1<<2;	//向该位写 1 , 清除触发请求
 }
@@ -69,4 +69,28 @@ void EXTI2_IRQHandler(void) {
 void irda_init() {
 	// irda_PWM_Init();	// 发送功能初始化
 	irda_EXTI_Init();	// 接收功能初始化
+
+	g_IrDA_Device[0].IrInterrup	= (volatile unsigned long *)BITBAND(INT_ENABLE_ADDR, 2);
+	g_IrDA_Device[0].IrPWM		= (volatile unsigned long *)BITBAND(PWM_ENABLE_ADDR, 0);
+	g_IrDA_Device[0].signal		= (volatile unsigned long *)BITBAND(ID_REG_ADDR, 2);
+	*(g_IrDA_Device[0].IrInterrup) = 1;		//开放该外设的中断请求
+
+}
+
+void irda_decode(ir_pst ir) {
+	unsigned char lastStatus = *ir->signal;
+	unsigned char *wave = ir->token;
+	unsigned char cnt = 0;	//初始化计数器
+	while(cnt < WAVE_SEGEMENT_LENGTH) {
+		if(lastStatus != *ir->signal) {
+			//当发生电平跳转时保存当前计数并清空计数器以便于记录下次数据
+			*wave++ = cnt;
+			cnt = 0;
+		} else {
+			cnt++;
+			delay(1);
+		}
+		lastStatus = *ir->signal;
+	}
+
 }
