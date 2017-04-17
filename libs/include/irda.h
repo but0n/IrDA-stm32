@@ -36,7 +36,7 @@ ir_st g_IrDA_Device[IR_DEVICES_NUM];
 void irda_init();
 void irda_PWM_Init();  //72MHz / (arr + 1)*(psc + 1)
 void irda_EXTI_Init();
-extern void delay(volatile unsigned int count);
+extern void delay_us(unsigned int t);
 void irda_decode(ir_pst ir);
 
 #endif
