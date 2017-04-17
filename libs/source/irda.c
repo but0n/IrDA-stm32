@@ -122,7 +122,6 @@ void irda_decode(ir_pst ir) {
 			cnt = 0;
 		}
 		lastStatus = *ir->signal;
-		cnt++;
 		delay_us(20);
 	}
 	unsigned int len = wave - ir->token + 1;
