@@ -14,13 +14,13 @@
 #define IR3 BIT_ADDR(TIM3->CCER, TIM_CCER_CC3E)
 #define IR4 BIT_ADDR(TIM3->CCER, TIM_CCER_CC4E)
 
-#define WAVE_SEGEMENT_LENGTH	200
+#define WAVE_SEGEMENT_LENGTH	100000
 
 // 红外学码外设对象定义
 #define IR_DEVICES_NUM	8	//共有8路学码发码外设
-#define TOKEN_LEN		10	//红外波形共有10次电平翻转
+#define TOKEN_LEN		400	//红外波形共有10次电平翻转
 typedef struct {
-	unsigned char token[TOKEN_LEN];
+	unsigned int token[TOKEN_LEN];
 	volatile unsigned long *IrInterrup;	//this reg will be a Pointer to EXTI->IMR, for enable or disable
 	volatile unsigned long *IrPWM;
 	volatile unsigned long *signal;

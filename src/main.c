@@ -3,8 +3,21 @@
 #include "irda.h"
 #define NVIC_GROUPING	3
 
-void delay(volatile unsigned int count) {
-    for(count *= 12000; count!=0; count--);
+void delay_ms(unsigned int t) {
+	SysTick->LOAD = 9000 * t;
+	SysTick->VAL = 0;
+	SysTick->CTRL = 0x01;
+	for(unsigned int tmp = SysTick->CTRL;(tmp&0x01)&&(!(tmp&SysTick_CTRL_COUNTFLAG));tmp = SysTick->CTRL);
+	SysTick->CTRL = 0;
+	SysTick->VAL = 0;
+}
+void delay_us(unsigned int t) {
+	SysTick->LOAD = 9 * t;
+	SysTick->VAL = 0;
+	SysTick->CTRL = 0x01;
+	for(unsigned int tmp = SysTick->CTRL;(tmp&0x01)&&(!(tmp&SysTick_CTRL_COUNTFLAG));tmp = SysTick->CTRL);
+	SysTick->CTRL = 0;
+	SysTick->VAL = 0;
 }
 
 int main() {
@@ -13,30 +26,11 @@ int main() {
 
 	uart_init(72, 115200);
 	irda_init();
+	unsigned int tick = 0;
 	while(1) {
-		uart_num2char(g_IrDA_Device[0].token[0]);
-		uart_sendStr(", ");
-		uart_num2char(g_IrDA_Device[0].token[1]);
-		uart_sendStr(", ");
-		uart_num2char(g_IrDA_Device[0].token[2]);
-		uart_sendStr(", ");
-		uart_num2char(g_IrDA_Device[0].token[3]);
-		uart_sendStr(", ");
-		uart_num2char(g_IrDA_Device[0].token[4]);
-		uart_sendStr(", ");
-		uart_num2char(g_IrDA_Device[0].token[5]);
-		uart_sendStr(", ");
-		uart_num2char(g_IrDA_Device[0].token[6]);
-		uart_sendStr(", ");
-		uart_num2char(g_IrDA_Device[0].token[7]);
-		uart_sendStr(", ");
-		uart_num2char(g_IrDA_Device[0].token[8]);
-		uart_sendStr(", ");
-		uart_num2char(g_IrDA_Device[0].token[9]);
-		uart_sendStr(", ");
+		uart_num2char(tick++);
 		UART_CR();
-		UART_CR();
-		delay(10);
+		delay_ms(1000);
 	}
 	return 0;
 }

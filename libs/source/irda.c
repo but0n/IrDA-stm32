@@ -61,7 +61,42 @@ void EXTI2_IRQHandler(void) {
 	// EXTI->IMR &= ~(1<<2);	//屏蔽该中断
 	*(g_IrDA_Device[0].IrInterrup) = 0;
 	irda_decode(&g_IrDA_Device[0]);
-	uart_sendStr("Got it !");
+	uart_num2char(g_IrDA_Device[0].token[0]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[1]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[2]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[3]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[4]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[5]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[6]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[7]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[8]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[9]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[10]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[11]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[12]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[13]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[14]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[15]);
+	uart_sendStr(", ");
+	uart_num2char(g_IrDA_Device[0].token[16]);
+	uart_sendStr(", ");
+	UART_CR();
+
 	EXTI->IMR |= 1<<2;	//开放该中断
 	EXTI->PR |= 1<<2;	//向该位写 1 , 清除触发请求
 }
@@ -79,18 +114,20 @@ void irda_init() {
 
 void irda_decode(ir_pst ir) {
 	unsigned char lastStatus = *ir->signal;
-	unsigned char *wave = ir->token;
-	unsigned char cnt = 0;	//初始化计数器
-	while(cnt < WAVE_SEGEMENT_LENGTH) {
+	unsigned int *wave = ir->token;
+	for(unsigned int cnt = 0; cnt < WAVE_SEGEMENT_LENGTH; cnt++) {
 		if(lastStatus != *ir->signal) {
 			//当发生电平跳转时保存当前计数并清空计数器以便于记录下次数据
 			*wave++ = cnt;
 			cnt = 0;
-		} else {
-			cnt++;
-			delay(1);
 		}
 		lastStatus = *ir->signal;
+		cnt++;
+
 	}
+	unsigned int len = wave - ir->token;
+	UART_CR();
+	uart_num2char(len);
+	UART_CR();
 
 }
