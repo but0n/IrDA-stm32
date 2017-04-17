@@ -125,7 +125,7 @@ void irda_decode(ir_pst ir) {
 		cnt++;
 		delay_us(20);
 	}
-	unsigned int len = wave - ir->token;
+	unsigned int len = wave - ir->token + 1;
 	UART_CR();
 	uart_num2char(len);
 	UART_CR();

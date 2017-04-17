@@ -26,11 +26,10 @@ int main() {
 
 	uart_init(72, 115200);
 	irda_init();
-	unsigned int tick = 0;
 	while(1) {
-		uart_num2char(tick++);
+		uart_sendStr("Alive~");
 		UART_CR();
-		delay_ms(1000);
+		delay_ms(3000);
 	}
 	return 0;
 }
