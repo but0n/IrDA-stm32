@@ -2737,9 +2737,10 @@
     )
   )
 
-  (module Crystals:SMD-5032 (layer F.Cu) (tedit 58F5D1C5) (tstamp 58F4D1AF)
+  (module Crystals:SMD-5032 (layer F.Cu) (tedit 58F5D8FD) (tstamp 58F4D1AF)
     (at 165.2 101.45)
     (path /58F0A066)
+    (attr smd)
     (fp_text reference Y1 (at 3.85 0.025) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
