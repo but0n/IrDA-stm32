@@ -1,23 +1,12 @@
-"Id";"Designator";"Package";"Quantity";"Designation";"Supplier and ref";
-1;"C1,C2";"C_0603";2;"20pF";;;
-2;"C3,C6";"C_0603";2;"106";;;
-3;"C4,C5,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C18,C19,C20";"C_0603";16;"104";;;
-4;"D1";"Socket_Strip_Straight_1x02";1;"IrDA_CH1";;;
-5;"D2";"Socket_Strip_Straight_1x02";1;"IrDA_CH2";;;
-6;"D3";"Socket_Strip_Straight_1x02";1;"IrDA_CH3";;;
-7;"D4";"Socket_Strip_Straight_1x02";1;"IrDA_CH4";;;
-8;"D5";"Socket_Strip_Straight_1x02";1;"IrDA_CH5";;;
-9;"D6";"Socket_Strip_Straight_1x02";1;"IrDA_CH6";;;
-10;"D7";"Socket_Strip_Straight_1x02";1;"IrDA_CH7";;;
-11;"D8";"Socket_Strip_Straight_1x02";1;"IrDA_CH8";;;
-12;"P1";"Socket_Strip_Angled_1x04";1;"+  -  R  T";;;
-13;"P2,P3,P4,P5,P6,P7,P8,P9";"Socket_Strip_Straight_1x03";8;"";;;
-14;"Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8";"SOT-23";8;"SS8050";;;
-15;"R1,R3,R8";"R_0603";3;"10K";;;
-16;"R2";"R_0603";1;"1M";;;
-17;"R4,R5,R6,R7,R9,R10,R11,R12";"R_0603";8;"100";;;
-18;"R13,R14,R15,R16,R21,R22,R23,R24";"R_0603";8;"5R";;;
-19;"R17,R18,R19,R20,R25,R26,R27,R28";"R_0603";8;"1K";;;
-20;"U1";"SOT-23";1;"XC6206P332MR";;;
-21;"U2";"LQFP-64_10x10mm_Pitch0.5mm";1;"STM32F103RCT6";;;
-22;"Y1";"SMD-5032";1;"X50328MSD2GC";;;
+Comment,Designator,Footprint
+106,"C3,C6",C_0603
+XC6206P332MR,U1,SOT-23
+20PF,"C1,C2",C_0603
+1M,R2,R_0603
+1K,"R17,R18,R19,R20,R25,R26,R27,R28",R_0603
+STM32F103RCT6,U2,LQFP-64_10X10MM_PITCH0.5MM
+5R,"R13,R14,R15,R16,R21,R22,R23,R24",R_0603
+SS8050,"Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8",SOT-23
+104,"C4,C5,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C18,C19,C20",C_0603
+100,"R4,R5,R6,R7,R9,R10,R11,R12",R_0603
+10K,"R1,R3,R8",R_0603
