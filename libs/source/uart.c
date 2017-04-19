@@ -71,7 +71,7 @@ void USART1_IRQHandler(void) {
 }
 
 void uart_decode(char *token) {
-	if(*token++ == 0)
+	if(*token == 0)
 		return;	//如果发生越界则结束 decode
 	if(ISLEGAL_NUM(*token)) {	//判断当前操作符是否为效数字
 		if(gCmdCache[TOKEN_OFFSET] == TOKEN_LEARN)		// 如果这条指令是学码命令
@@ -79,7 +79,7 @@ void uart_decode(char *token) {
 		else if(gCmdCache[TOKEN_OFFSET] == TOKEN_SEND) {}	// 如果这条指令是发码命令
 			//发码
 	}
-	uart_decode(token);
+	uart_decode(++token);
 }
 
 void uart_sendData(unsigned char data) {
