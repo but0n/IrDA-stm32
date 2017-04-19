@@ -1,8 +1,8 @@
 #include "uart.h"
 #include "stm32f10x.h"
 #include "irda.h"
-int top = -1;	//Stack Pointer
-char gCmdCache[CMD_MAX_LENGTH];
+static int top = -1;	//Stack Pointer
+static char gCmdCache[CMD_MAX_LENGTH];
 
 
 void uart_init(unsigned int pclk2, unsigned int bound) {
