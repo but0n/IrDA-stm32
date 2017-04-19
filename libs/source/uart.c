@@ -72,7 +72,7 @@ void USART1_IRQHandler(void) {
 
 void uart_decode(char *token) {
 	if(*token++ == 0)
-		return	//如果发生越界则结束 decode
+		return;	//如果发生越界则结束 decode
 	if(ISLEGAL_NUM(*token)) {	//判断当前操作符是否为效数字
 		if(gCmdCache[TOKEN_OFFSET] == TOKEN_LEARN)		// 如果这条指令是学码命令
 			*g_IrDA_Device[*token - '0'].IrInterrup ^= 1;	// (Toggle between enable and disable)如果该路学码中断是关闭的则使能, 反之则关闭
