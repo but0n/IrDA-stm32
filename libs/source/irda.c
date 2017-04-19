@@ -170,7 +170,7 @@ void EXTI2_IRQHandler(void) {
 
 	UART_CR();
 
-	EXTI->IMR |= 1<<2;	//开放该中断
+	// EXTI->IMR |= 1<<2;	//开放该中断
 	EXTI->PR |= 1<<2;	//向该位写 1 , 清除触发请求
 }
 
