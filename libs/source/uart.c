@@ -41,57 +41,45 @@ void uart_init(unsigned int pclk2, unsigned int bound) {
 
 void USART1_IRQHandler(void) {
 	if(USART1->SR & USART_SR_RXNE) {
-		char cmd = USART1->DR;	// Read this register to clear RXNE flag
+		char cmd = USART1->DR;	// 读取串口接收寄存器来清除 RXNE 标志
 		switch (cmd) {
-			case 0x0D:
+			case 0x0D:	//回车键
 			case 0x0A:
 				UART_CR();
 				uart_sendStr("Handle Command:\t");
 				uart_sendStr(gCmdCache);
+				uart_decode(gCmdCache);
 				UART_CR();
 				clrCache();
 				break;
-			case 0x08:
+			case 0x08:	//退格键
 			case 0x7F:
 				pop = '\0';
 				uart_sendData(0x7F);
 				uart_sendData(0x08);
 				break;
-			case '$':
+			case '$':	//$ - 特殊命令
 				clrCache();
-			default:
-				if(STACK_OVERFLOW)
+			default:	//其它按键
+				if(STACK_OVERFLOW)	//如果指令缓存将要溢出, 则不会入栈当前字符
 					break;
-				push(cmd);
-				uart_sendData(cmd);
+				push(cmd);			//保存当前字符
+				uart_sendData(cmd);	//在终端回显, 反馈用户输入的字符
 				break;
 		}
 	}
 }
 
-void uart_decode() {
-//	The Last Item Of CMD Cache Array
-//	| 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |-bit-|
-//	Each bit is a switch of IR Devices
-	char k;
-	// unsigned char stagement;
-	while(top > -1) {	// While CMD Cache is Not Empty
-		k = pop;
-		if(ISLEGAL_NUM(k)) {	// Handle Numbers
-			gCmdCache[CMD_MAX_LENGTH - 1] |= 1 << (k - '0');	// Store number argument to the top of cmd stack
-		} else {	// Handle Key Token
-			if(k == TOKEN_SEND) {	// Send data
-
-			}
-			else if(k == TOKEN_LEARN) {	// decode and store data
-
-			}
-		}
-
-
-
-
+void uart_decode(char *token) {
+	if(*token == 0)
+		return	//如果发生越界则结束 decode
+	if(ISLEGAL_NUM(*token)) {	//判断当前操作符是否为效数字
+		if(gCmdCache[TOKEN_OFFSET] == TOKEN_LEARN)		// 如果这条指令是学码命令
+			*g_IrDA_Device[*token - '0'].IrInterrup ^= 1;	// (Toggle between enable and disable)如果该路学码中断是关闭的则使能, 反之则关闭
+		else if(gCmdCache[TOKEN_OFFSET] == TOKEN_SEND) {}	// 如果这条指令是发码命令
+			//发码
 	}
+	uart_decode(token++);
 }
 
 void uart_sendData(unsigned char data) {

@@ -5,7 +5,7 @@ void uart_init(unsigned int pclk2, unsigned int bound);
 void uart_sendData(unsigned char data);
 void uart_sendStr(char * cmd);
 void USART1_IRQHandler(void);
-void uart_decode();
+void uart_decode(char *token);
 void uart_int2char(unsigned int k);
 void uart_short2char(unsigned short k);
 
@@ -26,10 +26,11 @@ void uart_short2char(unsigned short k);
 #define STACK_OVERFLOW	(top == CMD_MAX_LENGTH - 1)
 
 //	decode
-#define TOKEN_SEND	'S'
-#define TOKEN_LEARN	'L'
-#define CMD_NUM_MAX	'8'
-#define CMD_NUM_MIN	'1'
+#define TOKEN_SEND		'S'
+#define TOKEN_LEARN		'L'
+#define TOKEN_OFFSET	0x01
+#define CMD_NUM_MAX		'8'
+#define CMD_NUM_MIN		'1'
 #define ISLEGAL_NUM(k)	(((k) >= CMD_NUM_MIN) && ((k) <= CMD_NUM_MAX))
 
 #endif
