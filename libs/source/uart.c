@@ -41,7 +41,7 @@ void uart_init(unsigned int pclk2, unsigned int bound) {
 
 void USART1_IRQHandler(void) {
 	if(USART1->SR & USART_SR_RXNE) {
-		char cmd = USART1->DR;	// 读取串口接收寄存器来清除 RXNE 标志
+		const char cmd = USART1->DR;	// 读取串口接收寄存器来清除 RXNE 标志
 		switch (cmd) {
 			case 0x0D:	//回车键
 			case 0x0A:
@@ -95,7 +95,7 @@ void uart_sendStr(char *cmd) {
 void uart_int2char(unsigned int k) {
 	char cache[] = "0000000000";	// Max value is 4294967295
 	unsigned char i = 9;
-	unsigned int bit[] = {1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1};
+	const unsigned int bit[] = {1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1};
 
 	do {
 		cache[i] += (char)(k / bit[i] % 10);
@@ -106,7 +106,7 @@ void uart_int2char(unsigned int k) {
 void uart_short2char(unsigned short k) {
 	char cache[] = "00000";	// Max value is 4294967295
 	unsigned char i = 4;
-	unsigned int bit[] = {10000, 1000, 100, 10, 1};
+	const unsigned int bit[] = {10000, 1000, 100, 10, 1};
 
 	do {
 		cache[i] += (char)(k / bit[i] % 10);
