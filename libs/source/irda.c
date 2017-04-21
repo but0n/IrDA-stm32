@@ -58,120 +58,20 @@ void irda_EXTI_Init() {
 }
 
 void EXTI2_IRQHandler(void) {
-	// EXTI->IMR &= ~(1<<2);	//屏蔽该中断
-	*(g_IrDA_Device[0].IrInterrup) = 0;
-	irda_decode(&g_IrDA_Device[0]);
+	// EXTI->IMR &= ~(1<<2);			//屏蔽该中断
+	*g_IrDA_Device[0].IrInterrup = 0;	//屏蔽该中断, 保证学码不被打断
+	irda_decode(&g_IrDA_Device[0]);		//decode
 
-	uart_short2char(g_IrDA_Device[0].token[0]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[1]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[2]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[3]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[4]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[5]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[6]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[7]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[8]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[9]);
-	uart_sendStr(", ");
-
-	uart_short2char(g_IrDA_Device[0].token[10]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[11]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[12]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[13]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[14]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[15]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[16]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[17]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[18]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[19]);
-	uart_sendStr(", ");
-
-	uart_short2char(g_IrDA_Device[0].token[20]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[21]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[22]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[23]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[24]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[25]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[26]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[27]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[28]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[29]);
-	uart_sendStr(", ");
-
-	uart_short2char(g_IrDA_Device[0].token[30]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[31]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[32]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[33]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[34]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[35]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[36]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[37]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[38]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[39]);
-	uart_sendStr(", ");
-
-	uart_short2char(g_IrDA_Device[0].token[40]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[41]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[42]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[43]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[44]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[45]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[46]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[47]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[48]);
-	uart_sendStr(", ");
-	uart_short2char(g_IrDA_Device[0].token[49]);
-	uart_sendStr(", ");
-
+	IR_WAVE_FEEDBACK(0);				//显示学习到的波形数据
 
 	UART_CR();
+#ifdef IR_AUTODISABLE
+#else
+	*g_IrDA_Device[0].IrInterrup = 1;	//学码之后再次开启学码功能
+#endif
 
 	// EXTI->IMR |= 1<<2;	//开放该中断
-	EXTI->PR |= 1<<2;	//向该位写 1 , 清除触发请求
+	EXTI->PR |= 1<<2;					//向该位写 1 , 清除触发请求
 }
 
 void irda_init() {
@@ -181,7 +81,7 @@ void irda_init() {
 	g_IrDA_Device[0].IrInterrup	= (volatile unsigned long *)BITBAND(INT_ENABLE_ADDR, 2);
 	g_IrDA_Device[0].IrPWM		= (volatile unsigned long *)BITBAND(PWM_ENABLE_ADDR, 0);
 	g_IrDA_Device[0].signal		= (volatile unsigned long *)BITBAND(ID_REG_ADDR, 2);
-	*(g_IrDA_Device[0].IrInterrup) = 1;		//开放该外设的中断请求
+	// *(g_IrDA_Device[0].IrInterrup) = 1;		//开放该外设的中断请求
 
 }
 
@@ -193,18 +93,16 @@ void irda_decode(ir_pst ir) {
 			//当发生电平跳转时保存当前计数并清空计数器以便于记录下次数据
 			*wave++ = cnt;
 			if(IR_ISOVERFLOW(wave, ir->token)) {
-				uart_sendStr("波形数据溢出, 请松开按键!");
-				UART_CR();
+				uart_sendStr("波形数据溢出, 请松开按键!\n\r");
 				return;
 			}
 			cnt = 0;
 		}
 		lastStatus = *ir->signal;
-		delay_us(20);
+		delay_us(20);	// 跳过38KHz载波信号的电平反转
 	}
 	unsigned short len = wave - ir->token + 1;
-	UART_CR();
-	uart_sendStr("波形数组长度:\t");
+	uart_sendStr("\n\r波形数组长度:\t");
 	uart_short2char(len);
 	UART_CR();
 

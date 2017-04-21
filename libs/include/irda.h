@@ -18,6 +18,7 @@
 // 红外学码外设对象定义
 #define IR_DEVICES_NUM	8	//共有8路学码发码外设
 #define WAVE_SEGMEENT_NUM		400	//红外波形共有200次电平翻转
+
 typedef struct {
 	unsigned short token[WAVE_SEGMEENT_NUM];
 	volatile unsigned long *IrInterrup;	//this reg will be a Pointer to EXTI->IMR, for enable or disable
@@ -27,6 +28,120 @@ typedef struct {
 ir_st g_IrDA_Device[IR_DEVICES_NUM];
 //检测当前操作地址是否为数组最后一个元素
 #define IR_ISOVERFLOW(curAddr, endAddr)	((curAddr) == ((endAddr)+WAVE_SEGMEENT_NUM-1))
+//特殊配置
+#define IR_WAVE_FB_NUM	//在终端回馈红外波形数据
+#define IR_AUTODISABLE	//在每次学码之后自动关闭学码功能
+
+#ifdef IR_WAVE_FB_NUM
+	#define IR_WAVE_FEEDBACK(i) do {\
+		uart_short2char(g_IrDA_Device[(i)].token[0]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[1]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[2]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[3]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[4]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[5]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[6]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[7]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[8]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[9]);\
+		uart_sendStr(", ");\
+\
+		uart_short2char(g_IrDA_Device[(i)].token[10]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[11]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[12]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[13]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[14]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[15]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[16]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[17]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[18]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[19]);\
+		uart_sendStr(", ");\
+\
+		uart_short2char(g_IrDA_Device[(i)].token[20]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[21]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[22]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[23]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[24]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[25]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[26]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[27]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[28]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[29]);\
+		uart_sendStr(", ");\
+\
+		uart_short2char(g_IrDA_Device[(i)].token[30]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[31]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[32]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[33]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[34]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[35]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[36]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[37]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[38]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[39]);\
+		uart_sendStr(", ");\
+\
+		uart_short2char(g_IrDA_Device[(i)].token[40]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[41]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[42]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[43]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[44]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[45]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[46]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[47]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[48]);\
+		uart_sendStr(", ");\
+		uart_short2char(g_IrDA_Device[(i)].token[49]);\
+		uart_sendStr(", ");\
+	} while(0)
+#else
+	#define IR_WAVE_FEEDBACK(i) do {} while (0)
+#endif
 
 // Address
 #define INT_ENABLE_ADDR		EXTI_BASE			//IMR

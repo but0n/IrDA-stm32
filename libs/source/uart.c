@@ -45,11 +45,10 @@ void USART1_IRQHandler(void) {
 		switch (cmd) {
 			case 0x0D:	//回车键
 			case 0x0A:
-				UART_CR();
-				uart_sendStr("Handle Command:\t");
+				uart_sendStr("\n\r当前命令:\t");
 				uart_sendStr(gCmdCache);
-				uart_decode(gCmdCache);
 				UART_CR();
+				uart_decode(gCmdCache);
 				clrCache();
 				break;
 			case 0x08:	//退格键
@@ -58,7 +57,7 @@ void USART1_IRQHandler(void) {
 				uart_sendData(0x7F);
 				uart_sendData(0x08);
 				break;
-			case '$':	//$ - 特殊命令
+			case TOKEN_START:	//$ - 命令起始标志
 				clrCache();
 			default:	//其它按键
 				if(STACK_OVERFLOW)	//如果指令缓存将要溢出, 则不会入栈当前字符
@@ -73,10 +72,19 @@ void USART1_IRQHandler(void) {
 void uart_decode(char *token) {
 	if(*token == 0)
 		return;	//如果发生越界则结束 decode
-	if(ISLEGAL_NUM(*token)) {	//判断当前操作符是否为效数字
-		if(gCmdCache[TOKEN_OFFSET] == TOKEN_LEARN)		// 如果这条指令是学码命令
-			*g_IrDA_Device[*token - '0'].IrInterrup ^= 1;	// (Toggle between enable and disable)如果该路学码中断是关闭的则使能, 反之则关闭
-		else if(gCmdCache[TOKEN_OFFSET] == TOKEN_SEND) {}	// 如果这条指令是发码命令
+	if(ISLEGAL_NUM(*token)) {	//如果当前操作符为效数字
+
+		uart_sendStr(" - ");
+		uart_sendData(*token);	//在终端显示当前处理的学码电路通道号
+
+		if(gCmdCache[TOKEN_OFFSET] == TOKEN_LEARN) {		// 如果这条指令是学码命令
+			*g_IrDA_Device[*token - '1'].IrInterrup ^= 1;	// (Toggle between enable and disable)如果该路学码中断是关闭的则使能, 反之则关闭
+			uart_sendStr("号:学码");
+			uart_sendStr(*g_IrDA_Device[*token - '1'].IrInterrup?"开启\n\r":"关闭\n\r");
+		}
+		else if(gCmdCache[TOKEN_OFFSET] == TOKEN_SEND) {	// 如果这条指令是发码命令
+			uart_sendStr("号:发码开启\n\r");
+		}
 			//发码
 	}
 	uart_decode(++token);

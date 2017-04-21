@@ -26,6 +26,7 @@ void uart_short2char(unsigned short k);
 #define STACK_OVERFLOW	(top == CMD_MAX_LENGTH - 1)
 
 //	decode
+#define TOKEN_START		'$'
 #define TOKEN_SEND		'S'
 #define TOKEN_LEARN		'L'
 #define TOKEN_OFFSET	0x01

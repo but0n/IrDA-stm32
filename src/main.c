@@ -1,6 +1,7 @@
 #include "stm32f10x.h"
 #include "uart.h"
 #include "irda.h"
+
 #define NVIC_GROUPING	3
 
 void delay_ms(unsigned int t) {
@@ -27,9 +28,9 @@ int main() {
 	uart_init(72, 115200);
 	irda_init();
 	while(1) {
-		uart_sendStr("Alive~");
-		UART_CR();
-		delay_ms(3000);
+		// uart_sendStr("Alive~");
+		// UART_CR();
+		// delay_ms(4000);
 	}
 	return 0;
 }
