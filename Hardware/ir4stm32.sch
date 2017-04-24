@@ -455,9 +455,9 @@ F 3 "" H 4550 1000 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 Text GLabel 4350 750  0    60   Input ~ 0
-BOOT0
-Text GLabel 4350 1000 0    60   Input ~ 0
 BOOT1
+Text GLabel 4350 1000 0    60   Input ~ 0
+BOOT0
 $Comp
 L GND #PWR014
 U 1 1 58F0B029
@@ -504,9 +504,9 @@ F 3 "" H 9050 800 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 Text GLabel 9400 900  0    60   Input ~ 0
-RX1
-Text GLabel 9400 1000 0    60   Input ~ 0
 TX1
+Text GLabel 9400 1000 0    60   Input ~ 0
+RX1
 $Comp
 L Q_NPN_BEC Q5
 U 1 1 58F0BED5
