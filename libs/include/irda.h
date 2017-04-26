@@ -29,7 +29,7 @@ ir_st g_IrDA_Device[IR_DEVICES_NUM];
 
 //程序设置
 #define IR_WAVE_FB_NUM	//在终端回馈红外波形数据
-#define IR_AUTODISABLE	//在每次学码之后自动关闭学码功能
+#define IR_AUTOENABLE	//在每次学码之后自动再次打开学码功能
 
 #ifdef IR_WAVE_FB_NUM
 	#define IR_WAVE_FEEDBACK(i) do {\
@@ -153,5 +153,6 @@ void irda_PWM_Init();  //72MHz / (arr + 1)*(psc + 1)
 void irda_EXTI_Init();
 extern void delay_us(unsigned int t);
 void irda_decode(ir_pst ir);
+void irda_encode(ir_pst ir);
 
 #endif

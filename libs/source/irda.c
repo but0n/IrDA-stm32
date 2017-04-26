@@ -42,11 +42,11 @@ void irda_PWM_Init() {
 }
 
 void irda_EXTI_Init() {
-	NVIC_EnableIRQ(EXTI2_IRQn);
-	NVIC_SetPriority(EXTI2_IRQn, 0b0011);
+	NVIC_EnableIRQ(EXTI2_IRQn);			//使能外部中断
+	NVIC_SetPriority(EXTI2_IRQn, 0b0011);//设置中断优先级
 
-	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
-	RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
+	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;	//使能 AFIO 时钟
+	RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;	//使能 IO Port A 时钟
 
 	GPIOA->CRL &= 0xFFFFF0FF;	//清空
 	GPIOA->CRL |= 0x00000800;	//配置为输入模式
@@ -58,53 +58,58 @@ void irda_EXTI_Init() {
 }
 
 void EXTI2_IRQHandler(void) {
-	// EXTI->IMR &= ~(1<<2);			//屏蔽该中断
 	*g_IrDA_Device[0].IrInterrup = 0;	//屏蔽该中断, 保证学码不被打断
-	irda_decode(&g_IrDA_Device[0]);		//decode
+	irda_decode(&g_IrDA_Device[0]);		//decode	复制红外波形
 
 	IR_WAVE_FEEDBACK(0);				//显示学习到的波形数据
 
 	UART_CR();
-#ifdef IR_AUTODISABLE
-#else
+#ifdef IR_AUTOENABLE					//如果定义了中断的自动使能
 	*g_IrDA_Device[0].IrInterrup = 1;	//学码之后再次开启学码功能
 #endif
 
-	// EXTI->IMR |= 1<<2;	//开放该中断
-	EXTI->PR |= 1<<2;					//向该位写 1 , 清除触发请求
+	EXTI->PR |= 1<<2;					//在 PR 寄存器向当前中断位写 1 , 清除触发请求
 }
 
-void irda_init() {
+void irda_init() {		// 串口外设初始化函数
 	// irda_PWM_Init();	// 发送功能初始化
 	irda_EXTI_Init();	// 接收功能初始化
 
-	//实例化红外外设对象
+	//实例化红外外设对象 - 第 1 路
 	g_IrDA_Device[0].IrInterrup	= (volatile unsigned long *)BITBAND(INT_ENABLE_ADDR, 2);
 	g_IrDA_Device[0].IrPWM		= (volatile unsigned long *)BITBAND(PWM_ENABLE_ADDR, 0);
 	g_IrDA_Device[0].signal		= (volatile unsigned long *)BITBAND(ID_REG_ADDR, 2);
-	// *(g_IrDA_Device[0].IrInterrup) = 1;		//开放该外设的中断请求
-
 }
 
 void irda_decode(ir_pst ir) {
-	unsigned char lastStatus = *ir->signal;
-	unsigned short *wave = ir->token;
-	for(unsigned int cnt = 0; cnt < WAVE_SEGEMENT_LENGTH; cnt++) {
+	unsigned char lastStatus = *ir->signal;		//用来保存上一次电平状态, 以判断电平是否发生翻转
+	unsigned short *wave = ir->token;			//指向用来存储波形的数组
+
+	for(unsigned int cnt = 0; cnt < WAVE_SEGEMENT_LENGTH; cnt++) {	//计数器递增, 计数器的数值代表波形长度
 		if(lastStatus != *ir->signal) {
-			//当发生电平跳转时保存当前计数并清空计数器以便于记录下次数据
-			*wave++ = cnt;
-			if(IR_ISOVERFLOW(wave, ir->token)) {
+			*wave++ = cnt;						//当发生电平跳转时保存当前计数并将指针指向波形数组的下一个元素
+			if(IR_ISOVERFLOW(wave, ir->token)) {//如果遥控器按键未松开会导致多次发送红外信号
 				uart_sendStr("波形数据溢出, 请松开按键!\n\r");
 				return;
 			}
-			cnt = 0;
+			cnt = 0;							//清空计数器以便于测量下一段波形长度
 		}
 		lastStatus = *ir->signal;
 		delay_us(20);	// 跳过38KHz载波信号的电平反转
 	}
-	unsigned short len = wave - ir->token + 1;
+	unsigned short len = wave - ir->token + 1;	//计算波形的高电平和低电平共有多少段
 	uart_sendStr("\n\r波形数组长度:\t");
-	uart_short2char(len);
+	uart_short2char(len);						//在终端反馈数据
 	UART_CR();
 
+}
+
+void irda_encode(ir_pst ir) {
+	unsigned short *wave = ir->token;	//定义一个指针指向被发送的波形数据
+	unsigned short cnt;					//计数器
+	while((cnt = *wave++)) {	//提取当前波形长度, 如果长度值有效则将发送波形, 并且将 wave 指向下一段数据
+		*ir->IrPWM ^= 1;		//电平翻转,切换 PWM 输出状态,如果之前输出是打开的则关闭, 如果之前是关闭的则打开
+		while(cnt--)
+			delay_us(20);		//计数器单位为 20us, 因为波形有38KHz载波
+	}
 }
