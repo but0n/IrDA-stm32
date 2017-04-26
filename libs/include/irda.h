@@ -27,7 +27,7 @@ ir_st g_IrDA_Device[IR_DEVICES_NUM];
 //检测当前操作地址是否为数组最后一个元素
 #define IR_ISOVERFLOW(curAddr, endAddr)	((curAddr) == ((endAddr)+WAVE_SEGMEENT_NUM-1))
 
-//软件特殊设置
+//程序设置
 #define IR_WAVE_FB_NUM	//在终端回馈红外波形数据
 #define IR_AUTODISABLE	//在每次学码之后自动关闭学码功能
 

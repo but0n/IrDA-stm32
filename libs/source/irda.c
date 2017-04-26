@@ -78,6 +78,7 @@ void irda_init() {
 	// irda_PWM_Init();	// 发送功能初始化
 	irda_EXTI_Init();	// 接收功能初始化
 
+	//实例化红外外设对象
 	g_IrDA_Device[0].IrInterrup	= (volatile unsigned long *)BITBAND(INT_ENABLE_ADDR, 2);
 	g_IrDA_Device[0].IrPWM		= (volatile unsigned long *)BITBAND(PWM_ENABLE_ADDR, 0);
 	g_IrDA_Device[0].signal		= (volatile unsigned long *)BITBAND(ID_REG_ADDR, 2);
