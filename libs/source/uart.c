@@ -84,7 +84,7 @@ void uart_decode(char *token) {
 		}
 		else if(gCmdCache[TOKEN_OFFSET] == TOKEN_SEND) {	// 如果这条指令是发码命令
 			uart_sendStr("号:发码开启\n\r");
-			irda_encode(g_IrDA_Device[*token - '1']);
+			irda_encode(&g_IrDA_Device[*token - '1']);
 		}
 			//发码
 	}
