@@ -77,7 +77,7 @@ void EXTI0_IRQHandler(void) {
 	*g_IrDA_Device[0].IrInterrup = 1;	//学码之后再次开启学码功能
 #endif
 
-	EXTI->PR |= 1<<2;					//在 PR 寄存器向当前中断位写 1 , 清除触发请求
+	EXTI->PR |= 1<<0;					//在 PR 寄存器向当前中断位写 1 , 清除触发请求
 }
 
 void irda_init() {		// 串口外设初始化函数

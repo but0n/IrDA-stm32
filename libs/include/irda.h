@@ -142,12 +142,6 @@ ir_st g_IrDA_Device[IR_DEVICES_NUM];
 	#define IR_WAVE_FEEDBACK(i) do {} while (0)
 #endif
 
-// Address
-#define INT_ENABLE_ADDR		EXTI_BASE			//IMR
-#define PWM_ENABLE_ADDR		TIM3_BASE+0x20		//TIM3_CCER
-#define ID_REG_ADDR			GPIOA_BASE+0x08		//GPIOA_IDR
-
-
 void irda_init();
 void irda_PWM_Init();  //72MHz / (arr + 1)*(psc + 1)
 void irda_EXTI_Init();
