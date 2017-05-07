@@ -142,6 +142,29 @@ ir_st g_IrDA_Device[IR_DEVICES_NUM];
 	#define IR_WAVE_FEEDBACK(i) do {} while (0)
 #endif
 
+#ifdef IR_AUTOENABLE
+	#define IRQ_HANDLE_CORE(i) do {\
+		*g_IrDA_Device[(i)].IrInterrup = 0;\
+		irda_decode(&g_IrDA_Device[(i)]);\
+		\
+		IR_WAVE_FEEDBACK((i));\
+		\
+		UART_CR();\
+		\
+		*g_IrDA_Device[(i)].IrInterrup = 1;\
+	} while(0)
+#else
+	#define IRQ_HANDLE_CORE(i) do {\
+		*g_IrDA_Device[(i)].IrInterrup = 0;\
+		irda_decode(&g_IrDA_Device[(i)]);\
+		\
+		IR_WAVE_FEEDBACK((i));\
+		\
+		UART_CR();\
+	} while(0)
+#endif
+
+
 void irda_init();
 void irda_PWM_Init();  //72MHz / (arr + 1)*(psc + 1)
 void irda_EXTI_Init();

@@ -42,12 +42,24 @@ void irda_PWM_Init() {
 }
 
 void irda_EXTI_Init() {
-	NVIC_EnableIRQ(EXTI0_IRQn);			//使能外部中断
-	NVIC_SetPriority(EXTI0_IRQn, 0b0011);//设置中断优先级
+	//使能外部中断
+	NVIC_EnableIRQ(EXTI0_IRQn);
+	NVIC_EnableIRQ(EXTI1_IRQn);
+	NVIC_EnableIRQ(EXTI2_IRQn);
+	NVIC_EnableIRQ(EXTI3_IRQn);
+	NVIC_EnableIRQ(EXTI9_5_IRQn);
+
+	NVIC_SetPriority(EXTI0_IRQn, 0b0011);	//设置中断优先级
+	NVIC_SetPriority(EXTI1_IRQn, 0b0011);	//设置中断优先级
+	NVIC_SetPriority(EXTI2_IRQn, 0b0011);	//设置中断优先级
+	NVIC_SetPriority(EXTI3_IRQn, 0b0011);	//设置中断优先级
+	NVIC_SetPriority(EXTI9_5_IRQn, 0b0011);	//设置中断优先级
+
+
 
 	// 红外接收管的数据输出分别连接在单片机GPIO端口 C 的0, 1, 2, 3, 6, 7, 8, 9 引脚
 
-	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;	//使能 AFIO 时钟, 中断属于复用功能
+	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;	//使能 AFIO 时钟, 因为中断属于复用功能
 	RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;	//使能 IO Port C 时钟
 //					76543210
 	GPIOC->CRL &= 0x00FF0000;	//清空 0, 1, 2, 3, 6, 7
@@ -56,29 +68,56 @@ void irda_EXTI_Init() {
 	GPIOC->CRH &= 0xFFFFFF00;	//清空 8, 9
 	GPIOC->CRH |= 0x00000088;	//配置为输入模式
 
-	GPIOC->ODR |= 1 | 1<<1 | 1<<2 | 1<<3 | 1<<6 | 1<<7;			//上拉电阻
+	GPIOC->ODR |= 1 | 1<<1 | 1<<2 | 1<<3 | 1<<6 | 1<<7 | 1<<8 | 1<<9;	//上拉电阻
 
 	AFIO->EXTICR[0] = 0x2222;	//使能C端口 0, 1, 2, 3 引脚的中断复用
 	AFIO->EXTICR[1] = 0x2200;	//使能C端口 6, 7 引脚的中断复用
 	AFIO->EXTICR[2] = 0x0022;	//使能C端口 8, 9 引脚的中断复用
 
-	EXTI->FTSR |= 1 | 1<<1 | 1<<2 | 1<<3 | 1<<6 | 1<<7;			//下降沿触发
-	EXTI->RTSR |= 1 | 1<<1 | 1<<2 | 1<<3 | 1<<6 | 1<<7;			//上升沿触发
+	EXTI->FTSR |= 1 | 1<<1 | 1<<2 | 1<<3 | 1<<6 | 1<<7 | 1<<8 | 1<<9;	//下降沿触发
+	EXTI->RTSR |= 1 | 1<<1 | 1<<2 | 1<<3 | 1<<6 | 1<<7 | 1<<8 | 1<<9;	//上升沿触发
 }
 
+//各路的中断处理函数
 void EXTI0_IRQHandler(void) {
-	*g_IrDA_Device[0].IrInterrup = 0;	//屏蔽该中断, 保证学码不被打断
-	irda_decode(&g_IrDA_Device[0]);		//decode	复制红外波形
-
-	IR_WAVE_FEEDBACK(0);				//显示学习到的波形数据
-
-	UART_CR();
-#ifdef IR_AUTOENABLE					//如果定义了中断的自动使能
-	*g_IrDA_Device[0].IrInterrup = 1;	//学码之后再次开启学码功能
-#endif
-
-	EXTI->PR |= 1<<0;					//在 PR 寄存器向当前中断位写 1 , 清除触发请求
+	IRQ_HANDLE_CORE(0);
+	EXTI->PR |= 1<<0;
 }
+
+void EXTI1_IRQHandler(void) {
+	IRQ_HANDLE_CORE(1);
+	EXTI->PR |= 1<<1;
+}
+
+void EXTI2_IRQHandler(void) {
+	IRQ_HANDLE_CORE(2);
+	EXTI->PR |= 1<<2;
+}
+
+void EXTI3_IRQHandler(void) {
+	IRQ_HANDLE_CORE(3);
+	EXTI->PR |= 1<<3;
+}
+
+void EXTI9_5_IRQHandler(void) {
+	unsigned long origin = EXTI->PR;
+
+	if(origin & EXTI_PR_PR6) {			//如果来源为 6
+		IRQ_HANDLE_CORE(4);
+		EXTI->PR |= 1<<6;
+	} else if(origin & EXTI_PR_PR7) {	//如果来源为 7
+		IRQ_HANDLE_CORE(5);
+		EXTI->PR |= 1<<7;
+	} else if(origin & EXTI_PR_PR8) {	//如果来源为 8
+		IRQ_HANDLE_CORE(6);
+		EXTI->PR |= 1<<8;
+	} else if(origin & EXTI_PR_PR9) {	//如果来源为 9
+		IRQ_HANDLE_CORE(7);
+		EXTI->PR |= 1<<9;
+	}
+}
+
+
 
 void irda_init() {		// 串口外设初始化函数
 	// irda_PWM_Init();	// 发送功能初始化
@@ -88,6 +127,42 @@ void irda_init() {		// 串口外设初始化函数
 	g_IrDA_Device[0].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 0);
 	g_IrDA_Device[0].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
 	g_IrDA_Device[0].signal		= BIT_ADDRP(&(GPIOC->IDR), 0);
+
+	//实例化红外外设对象 - 第 2 路
+	g_IrDA_Device[1].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 1);
+	g_IrDA_Device[1].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[1].signal		= BIT_ADDRP(&(GPIOC->IDR), 1);
+
+	//实例化红外外设对象 - 第 3 路
+	g_IrDA_Device[2].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 2);
+	g_IrDA_Device[2].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[2].signal		= BIT_ADDRP(&(GPIOC->IDR), 2);
+
+	//实例化红外外设对象 - 第 4 路
+	g_IrDA_Device[3].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 3);
+	g_IrDA_Device[3].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[3].signal		= BIT_ADDRP(&(GPIOC->IDR), 3);
+
+	//实例化红外外设对象 - 第 5 路
+	g_IrDA_Device[4].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 6);
+	g_IrDA_Device[4].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[4].signal		= BIT_ADDRP(&(GPIOC->IDR), 6);
+
+	//实例化红外外设对象 - 第 6 路
+	g_IrDA_Device[5].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 7);
+	g_IrDA_Device[5].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[5].signal		= BIT_ADDRP(&(GPIOC->IDR), 7);
+
+	//实例化红外外设对象 - 第 7 路
+	g_IrDA_Device[6].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 8);
+	g_IrDA_Device[6].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[6].signal		= BIT_ADDRP(&(GPIOC->IDR), 8);
+
+	//实例化红外外设对象 - 第 8 路
+	g_IrDA_Device[7].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 9);
+	g_IrDA_Device[7].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[7].signal		= BIT_ADDRP(&(GPIOC->IDR), 9);
+
 }
 
 void irda_decode(ir_pst ir) {
