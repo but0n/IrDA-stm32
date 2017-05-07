@@ -45,14 +45,23 @@ void irda_EXTI_Init() {
 	NVIC_EnableIRQ(EXTI2_IRQn);			//使能外部中断
 	NVIC_SetPriority(EXTI2_IRQn, 0b0011);//设置中断优先级
 
-	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;	//使能 AFIO 时钟
-	RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;	//使能 IO Port A 时钟
+	// 红外接收管的数据输出分别连接在单片机GPIO端口 C 的0, 1, 2, 3, 6, 7, 8, 9 引脚
 
-	GPIOA->CRL &= 0xFFFFF0FF;	//清空
-	GPIOA->CRL |= 0x00000800;	//配置为输入模式
-	GPIOA->ODR |= 1<<2;			//上拉电阻
+	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;	//使能 AFIO 时钟, 中断属于复用功能
+	RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;	//使能 IO Port C 时钟
+//					76543210
+	GPIOA->CRL &= 0x00FF0000;	//清空 0, 1, 2, 3, 6, 7
+	GPIOA->CRL |= 0x88008888;	//配置为输入模式
 
-	AFIO->EXTICR[0] |= 0x0000;
+	GPIOA->CRH &= 0xFFFFFF00;	//清空 8, 9
+	GPIOA->CRH |= 0x00000088;	//配置为输入模式
+
+	GPIOA->ODR |= 1 | 1<<1 | 1<<2 | 1<<3 | 1<<6 | 1<<7;			//上拉电阻
+
+	AFIO->EXTICR[0] |= 0x2222;	//使能C端口 0, 1, 2, 3 引脚的中断复用
+	AFIO->EXTICR[1] |= 0x2200;	//使能C端口 6, 7 引脚的中断复用
+	AFIO->EXTICR[2] |= 0x0022;	//使能C端口 8, 9 引脚的中断复用
+
 	EXTI->FTSR |= 1<<2;			//下降沿触发
 	EXTI->RTSR |= 1<<2;			//上升沿触发
 }
@@ -76,9 +85,9 @@ void irda_init() {		// 串口外设初始化函数
 	irda_EXTI_Init();	// 接收功能初始化
 
 	//实例化红外外设对象 - 第 1 路
-	g_IrDA_Device[0].IrInterrup	= (volatile unsigned long *)BITBAND(INT_ENABLE_ADDR, 2);
-	g_IrDA_Device[0].IrPWM		= (volatile unsigned long *)BITBAND(PWM_ENABLE_ADDR, 0);
-	g_IrDA_Device[0].signal		= (volatile unsigned long *)BITBAND(ID_REG_ADDR, 2);
+	g_IrDA_Device[0].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 2);
+	g_IrDA_Device[0].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[0].signal		= BIT_ADDRP(&(GPIOC->IDR), 2);
 }
 
 void irda_decode(ir_pst ir) {
