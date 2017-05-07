@@ -42,8 +42,8 @@ void irda_PWM_Init() {
 }
 
 void irda_EXTI_Init() {
-	NVIC_EnableIRQ(EXTI2_IRQn);			//使能外部中断
-	NVIC_SetPriority(EXTI2_IRQn, 0b0011);//设置中断优先级
+	NVIC_EnableIRQ(EXTI0_IRQn);			//使能外部中断
+	NVIC_SetPriority(EXTI0_IRQn, 0b0011);//设置中断优先级
 
 	// 红外接收管的数据输出分别连接在单片机GPIO端口 C 的0, 1, 2, 3, 6, 7, 8, 9 引脚
 
@@ -58,15 +58,15 @@ void irda_EXTI_Init() {
 
 	GPIOC->ODR |= 1 | 1<<1 | 1<<2 | 1<<3 | 1<<6 | 1<<7;			//上拉电阻
 
-	AFIO->EXTICR[0] |= 0x2222;	//使能C端口 0, 1, 2, 3 引脚的中断复用
-	AFIO->EXTICR[1] |= 0x2200;	//使能C端口 6, 7 引脚的中断复用
-	AFIO->EXTICR[2] |= 0x0022;	//使能C端口 8, 9 引脚的中断复用
+	AFIO->EXTICR[0] = 0x2222;	//使能C端口 0, 1, 2, 3 引脚的中断复用
+	AFIO->EXTICR[1] = 0x2200;	//使能C端口 6, 7 引脚的中断复用
+	AFIO->EXTICR[2] = 0x0022;	//使能C端口 8, 9 引脚的中断复用
 
-	EXTI->FTSR |= 1<<2;			//下降沿触发
-	EXTI->RTSR |= 1<<2;			//上升沿触发
+	EXTI->FTSR |= 1 | 1<<1 | 1<<2 | 1<<3 | 1<<6 | 1<<7;			//下降沿触发
+	EXTI->RTSR |= 1 | 1<<1 | 1<<2 | 1<<3 | 1<<6 | 1<<7;			//上升沿触发
 }
 
-void EXTI2_IRQHandler(void) {
+void EXTI0_IRQHandler(void) {
 	*g_IrDA_Device[0].IrInterrup = 0;	//屏蔽该中断, 保证学码不被打断
 	irda_decode(&g_IrDA_Device[0]);		//decode	复制红外波形
 
@@ -98,7 +98,7 @@ void irda_decode(ir_pst ir) {
 		if(lastStatus != *ir->signal) {
 			*wave++ = cnt;						//当发生电平跳转时保存当前计数并将指针指向波形数组的下一个元素
 			if(IR_ISOVERFLOW(wave, ir->token)) {//如果遥控器按键未松开会导致多次发送红外信号
-				uart_sendStr("波形数据溢出, 请松开按键!\n\r");
+				uart_sendStr("\n\r波形数据溢出, 请松开按键!\n\r");
 				return;
 			}
 			cnt = 0;							//清空计数器以便于测量下一段波形长度
