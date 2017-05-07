@@ -32,9 +32,9 @@ int main() {
 	uart_init(72, 115200);	// 初始化串口, 波特率为115200
 	irda_init();			// irda初始化
 	while(1) {
-		// uart_sendStr("Alive~");
-		// UART_CR();
-		// delay_ms(4000);
+		uart_sendStr("Alive~");
+		UART_CR();
+		delay_ms(1000);
 	}
 	return 0;
 }

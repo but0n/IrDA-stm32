@@ -50,13 +50,13 @@ void irda_EXTI_Init() {
 	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;	//使能 AFIO 时钟, 中断属于复用功能
 	RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;	//使能 IO Port C 时钟
 //					76543210
-	GPIOA->CRL &= 0x00FF0000;	//清空 0, 1, 2, 3, 6, 7
-	GPIOA->CRL |= 0x88008888;	//配置为输入模式
+	GPIOC->CRL &= 0x00FF0000;	//清空 0, 1, 2, 3, 6, 7
+	GPIOC->CRL |= 0x88008888;	//配置为输入模式
 
-	GPIOA->CRH &= 0xFFFFFF00;	//清空 8, 9
-	GPIOA->CRH |= 0x00000088;	//配置为输入模式
+	GPIOC->CRH &= 0xFFFFFF00;	//清空 8, 9
+	GPIOC->CRH |= 0x00000088;	//配置为输入模式
 
-	GPIOA->ODR |= 1 | 1<<1 | 1<<2 | 1<<3 | 1<<6 | 1<<7;			//上拉电阻
+	GPIOC->ODR |= 1 | 1<<1 | 1<<2 | 1<<3 | 1<<6 | 1<<7;			//上拉电阻
 
 	AFIO->EXTICR[0] |= 0x2222;	//使能C端口 0, 1, 2, 3 引脚的中断复用
 	AFIO->EXTICR[1] |= 0x2200;	//使能C端口 6, 7 引脚的中断复用
@@ -85,9 +85,9 @@ void irda_init() {		// 串口外设初始化函数
 	irda_EXTI_Init();	// 接收功能初始化
 
 	//实例化红外外设对象 - 第 1 路
-	g_IrDA_Device[0].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 2);
+	g_IrDA_Device[0].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 0);
 	g_IrDA_Device[0].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
-	g_IrDA_Device[0].signal		= BIT_ADDRP(&(GPIOC->IDR), 2);
+	g_IrDA_Device[0].signal		= BIT_ADDRP(&(GPIOC->IDR), 0);
 }
 
 void irda_decode(ir_pst ir) {
