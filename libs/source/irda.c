@@ -148,7 +148,7 @@ void EXTI9_5_IRQHandler(void) {
 
 //红外学码电路初始化函数
 void irda_init() {
-	// irda_PWM_Init();	// 发送功能初始化
+	irda_PWM_Init();	// 发送功能初始化
 	irda_EXTI_Init();	// 接收功能初始化
 
 	//实例化红外外设对象 - 第 1 路
