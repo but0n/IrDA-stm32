@@ -2,45 +2,73 @@
 
 ir_st g_IrDA_Device[IR_DEVICES_NUM];
 
-//A7
+//红外学码电路发码部分初始化函数
 void irda_PWM_Init() {
+	// 红外发射管分别依次连接在单片机的 TIM3_CH1, TIM3_CH2, TIM3_CH3, TIM3_CH4,
+	//		TIM4_CH1, TIM4_CH2, TIM4_CH3, TIM4_CH4
+	//	所以在这个函数中需要初始化 TIM3 和 TIM4
 
-    RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;		//TIM3 Enable
-    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;		//IO Port A Enable
-    RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;		//IO Port B for TIM3 Channel 3 and 4
+    RCC->APB1ENR |= RCC_APB1ENR_TIM3EN | RCC_APB1ENR_TIM4EN;	//TIM3 Enable
+    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN;	//IO Port A and B Enable
 
-    GPIOA->CRL &= 0x00FFFFFF;   //Clean
-    GPIOA->CRL |= 0xBB000000;   //复用推挽输出
-    GPIOA->ODR |= 1<<7;			//CH2 GPIO Config
-    GPIOA->ODR |= 1<<6;			//CH1 GPIO Config
+	// GPIOA GPIOB 寄存器配置
+    GPIOA->CRL &= 0x00FFFFFF;
+    GPIOA->CRL |= 0xBB000000;   //将 6, 7 脚配置为复用推挽输出
+    GPIOA->ODR |= 1<<7;			//TIM3_CH2 GPIO 配置
+    GPIOA->ODR |= 1<<6;			//TIM3_CH1 GPIO 配置
 
-    GPIOB->CRL &= 0xFFFFFF00;
-    GPIOB->CRL |= 0x000000BB;
-    GPIOB->ODR |= 1;
-    GPIOB->ODR |= 1<<1;
+    GPIOB->CRL &= 0x00FFFF00;
+    GPIOB->CRL |= 0xBB0000BB;	//将 0, 1, 6, 7 脚配置为复用推挽输出
 
-    TIM3->ARR = IR_PWM_ARR - 1;
-    TIM3->PSC = IR_PWM_PSC - 1;
+	GPIOB->CRH &= 0xFFFFFF00;
+	GPIOB->CRH |= 0x000000BB;	//将 8, 9 脚配置为复用推挽输出
 
-    TIM3->CCMR1 |= 6<<4;    //CH1 Set OC1M[2:0]: PWM Mode
-    TIM3->CCMR1 |= 1<<3;    //CH1 Set OC1PE: Enable
-    TIM3->CCMR1 |= 6<<12;   //CH2 Set OC2M[2:0]: PWM Mode
-    TIM3->CCMR1 |= 1<<11;   //CH2 Set OC2PE: Enable
-    TIM3->CCMR2 |= 6<<4;    //CH3 Set OC3M[2:0]: PWM Mode
-    TIM3->CCMR2 |= 1<<3;    //CH3
-    TIM3->CCMR2 |= 6<<12;   //CH4
-    TIM3->CCMR2 |= 1<<11;
+	GPIOB->ODR |= 1<<0 | 1<<1 | 1<<6 | 1<<7 | 1<<8 | 1<<9;
 
-    TIM3->CCER |= 1;        //CH1 Output Enable
-    TIM3->CCER |= 1<<4;     //CH2 Output Enable
-    TIM3->CCER |= 1<<8;
-    TIM3->CCER |= 1<<12;
+	// TIM3 寄存器配置
+    TIM3->ARR = IR_PWM_ARR - 1;	//配置计数器最大值
+    TIM3->PSC = IR_PWM_PSC - 1;	//配置计数器分频
 
-    TIM3->CR1 = 0x80;       //APRE Enable
-    TIM3->CR1 |= 1;         //Set CEN, Allow to Count
+    TIM3->CCMR1 |= 6<<4;			//CH1 设置为 OC1M[2:0]: PWM 模式
+    TIM3->CCMR1 |= TIM_CCMR1_OC1PE;	//CH1 设置为 OC1PE: 使能
+    TIM3->CCMR1 |= 6<<12;   		//CH2 设置为 OC2M[2:0]: PWM 模式
+    TIM3->CCMR1 |= TIM_CCMR1_OC2PE;	//CH2 设置为 OC2PE: 使能
+    TIM3->CCMR2 |= 6<<4;    		//CH3 设置为 OC3M[2:0]: PWM 模式
+    TIM3->CCMR2 |= TIM_CCMR2_OC3PE;	//CH3
+    TIM3->CCMR2 |= 6<<12;			//CH4
+    TIM3->CCMR2 |= TIM_CCMR2_OC4PE;	//CH4
+
+	//CH1 ~ CH4 计数器使能
+    // TIM3->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E;
+
+    TIM3->CR1 |= TIM_CR1_ARPE | TIM_CR1_CEN;	//配置APRE位并使能计数器
+
+	// TIM4 寄存器配置
+    TIM4->ARR = IR_PWM_ARR - 1;	//配置计数器最大值
+    TIM4->PSC = IR_PWM_PSC - 1;	//配置计数器分频
+
+    TIM4->CCMR1 |= 6<<4;			//CH1 设置为 OC1M[2:0]: PWM 模式
+    TIM4->CCMR1 |= TIM_CCMR1_OC1PE;	//CH1 设置为 OC1PE: 使能
+    TIM4->CCMR1 |= 6<<12;   		//CH2 设置为 OC2M[2:0]: PWM 模式
+    TIM4->CCMR1 |= TIM_CCMR1_OC2PE;	//CH2 设置为 OC2PE: 使能
+    TIM4->CCMR2 |= 6<<4;    		//CH3 设置为 OC3M[2:0]: PWM 模式
+    TIM4->CCMR2 |= TIM_CCMR2_OC3PE;	//CH3
+    TIM4->CCMR2 |= 6<<12;			//CH4
+    TIM4->CCMR2 |= TIM_CCMR2_OC4PE;	//CH4
+
+	//CH1 ~ CH4 计数器使能
+    // TIM4->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E;
+
+    TIM4->CR1 |= TIM_CR1_ARPE | TIM_CR1_CEN;	//配置APRE位并使能计数器
+
+
+
+
+
     //TIM1->BDTR |= 1<<15;  //高级定时器需要使能BDTR寄存器
 }
 
+//红外学码电路收码部分初始化函数
 void irda_EXTI_Init() {
 	//使能外部中断
 	NVIC_EnableIRQ(EXTI0_IRQn);
@@ -118,53 +146,54 @@ void EXTI9_5_IRQHandler(void) {
 }
 
 
-
-void irda_init() {		// 串口外设初始化函数
+//红外学码电路初始化函数
+void irda_init() {
 	// irda_PWM_Init();	// 发送功能初始化
 	irda_EXTI_Init();	// 接收功能初始化
 
 	//实例化红外外设对象 - 第 1 路
 	g_IrDA_Device[0].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 0);
-	g_IrDA_Device[0].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[0].IrPWM		= BIT_ADDRP(&(TIM3->CCER), TIM_CCER_CC1E);
 	g_IrDA_Device[0].signal		= BIT_ADDRP(&(GPIOC->IDR), 0);
 
 	//实例化红外外设对象 - 第 2 路
 	g_IrDA_Device[1].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 1);
-	g_IrDA_Device[1].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[1].IrPWM		= BIT_ADDRP(&(TIM3->CCER), TIM_CCER_CC2E);
 	g_IrDA_Device[1].signal		= BIT_ADDRP(&(GPIOC->IDR), 1);
 
 	//实例化红外外设对象 - 第 3 路
 	g_IrDA_Device[2].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 2);
-	g_IrDA_Device[2].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[2].IrPWM		= BIT_ADDRP(&(TIM3->CCER), TIM_CCER_CC3E);
 	g_IrDA_Device[2].signal		= BIT_ADDRP(&(GPIOC->IDR), 2);
 
 	//实例化红外外设对象 - 第 4 路
 	g_IrDA_Device[3].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 3);
-	g_IrDA_Device[3].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[3].IrPWM		= BIT_ADDRP(&(TIM3->CCER), TIM_CCER_CC4E);
 	g_IrDA_Device[3].signal		= BIT_ADDRP(&(GPIOC->IDR), 3);
 
 	//实例化红外外设对象 - 第 5 路
 	g_IrDA_Device[4].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 6);
-	g_IrDA_Device[4].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[4].IrPWM		= BIT_ADDRP(&(TIM4->CCER), TIM_CCER_CC1E);
 	g_IrDA_Device[4].signal		= BIT_ADDRP(&(GPIOC->IDR), 6);
 
 	//实例化红外外设对象 - 第 6 路
 	g_IrDA_Device[5].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 7);
-	g_IrDA_Device[5].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[5].IrPWM		= BIT_ADDRP(&(TIM4->CCER), TIM_CCER_CC2E);
 	g_IrDA_Device[5].signal		= BIT_ADDRP(&(GPIOC->IDR), 7);
 
 	//实例化红外外设对象 - 第 7 路
 	g_IrDA_Device[6].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 8);
-	g_IrDA_Device[6].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[6].IrPWM		= BIT_ADDRP(&(TIM4->CCER), TIM_CCER_CC3E);
 	g_IrDA_Device[6].signal		= BIT_ADDRP(&(GPIOC->IDR), 8);
 
 	//实例化红外外设对象 - 第 8 路
 	g_IrDA_Device[7].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 9);
-	g_IrDA_Device[7].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
+	g_IrDA_Device[7].IrPWM		= BIT_ADDRP(&(TIM4->CCER), TIM_CCER_CC4E);
 	g_IrDA_Device[7].signal		= BIT_ADDRP(&(GPIOC->IDR), 9);
 
 }
 
+//红外信号学码函数
 void irda_decode(ir_pst ir) {
 	unsigned char lastStatus = *ir->signal;		//用来保存上一次电平状态, 以判断电平是否发生翻转
 	unsigned short *wave = ir->token;			//指向用来存储波形的数组
@@ -188,6 +217,7 @@ void irda_decode(ir_pst ir) {
 
 }
 
+//红外信号发码函数
 void irda_encode(ir_pst ir) {
 	unsigned short *wave = ir->token;	//定义一个指针指向被发送的波形数据
 	unsigned short cnt;					//计数器

@@ -165,11 +165,11 @@ ir_st g_IrDA_Device[IR_DEVICES_NUM];
 #endif
 
 
-void irda_init();
-void irda_PWM_Init();  //72MHz / (arr + 1)*(psc + 1)
-void irda_EXTI_Init();
-extern void delay_us(unsigned int t);
-void irda_decode(ir_pst ir);
-void irda_encode(ir_pst ir);
+void irda_init();		//红外学码电路初始化函数
+void irda_PWM_Init();  	//红外学码电路发码部分初始化函数. 72MHz / (arr + 1)*(psc + 1)
+void irda_EXTI_Init();	//红外学码电路收码部分初始化函数
+extern void delay_us(unsigned int t);	//微秒级延时函数
+void irda_decode(ir_pst ir);	//红外信号学码函数
+void irda_encode(ir_pst ir);	//红外信号发码函数
 
 #endif
