@@ -210,7 +210,7 @@ void irda_decode(ir_pst ir) {
 			cnt = 0;							//清空计数器以便于测量下一段波形长度
 		}
 		lastStatus = *ir->signal;
-		delay_us(20);	// 跳过38KHz载波信号的电平反转
+		delay_us(18);	// 跳过38KHz载波信号的电平反转
 	}
 	unsigned short len = wave - ir->token + 1;	//计算波形的高电平和低电平共有多少段
 	uart_sendStr("\n\r波形数组长度:\t");
@@ -226,6 +226,7 @@ void irda_encode(ir_pst ir) {
 	while((cnt = *wave++)) {	//提取当前波形长度, 如果长度值有效则将发送波形, 并且将 wave 指向下一段数据
 		*ir->IrPWM ^= 1;		//电平翻转,切换 PWM 输出状态,如果之前输出是打开的则关闭, 如果之前是关闭的则打开
 		while(cnt--)
-			delay_us(20);		//计数器单位为 20us, 因为波形有38KHz载波
+			delay_us(18);		//计数器单位为 20us, 因为波形有38KHz载波
 	}
+	*ir->IrPWM = 0;
 }
