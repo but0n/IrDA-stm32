@@ -155,42 +155,42 @@ void irda_init() {
 
 	//实例化红外外设对象 - 第 1 路
 	g_IrDA_Device[0].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 0);
-	g_IrDA_Device[0].IrPWM		= BIT_ADDRP(&(TIM3->CCER), TIM_CCER_CC1E);
+	g_IrDA_Device[0].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 0);
 	g_IrDA_Device[0].signal		= BIT_ADDRP(&(GPIOC->IDR), 0);
 
 	//实例化红外外设对象 - 第 2 路
 	g_IrDA_Device[1].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 1);
-	g_IrDA_Device[1].IrPWM		= BIT_ADDRP(&(TIM3->CCER), TIM_CCER_CC2E);
+	g_IrDA_Device[1].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 4);
 	g_IrDA_Device[1].signal		= BIT_ADDRP(&(GPIOC->IDR), 1);
 
 	//实例化红外外设对象 - 第 3 路
 	g_IrDA_Device[2].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 2);
-	g_IrDA_Device[2].IrPWM		= BIT_ADDRP(&(TIM3->CCER), TIM_CCER_CC3E);
+	g_IrDA_Device[2].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 8);
 	g_IrDA_Device[2].signal		= BIT_ADDRP(&(GPIOC->IDR), 2);
 
 	//实例化红外外设对象 - 第 4 路
 	g_IrDA_Device[3].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 3);
-	g_IrDA_Device[3].IrPWM		= BIT_ADDRP(&(TIM3->CCER), TIM_CCER_CC4E);
+	g_IrDA_Device[3].IrPWM		= BIT_ADDRP(&(TIM3->CCER), 12);
 	g_IrDA_Device[3].signal		= BIT_ADDRP(&(GPIOC->IDR), 3);
 
 	//实例化红外外设对象 - 第 5 路
 	g_IrDA_Device[4].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 6);
-	g_IrDA_Device[4].IrPWM		= BIT_ADDRP(&(TIM4->CCER), TIM_CCER_CC1E);
+	g_IrDA_Device[4].IrPWM		= BIT_ADDRP(&(TIM4->CCER), 0);
 	g_IrDA_Device[4].signal		= BIT_ADDRP(&(GPIOC->IDR), 6);
 
 	//实例化红外外设对象 - 第 6 路
 	g_IrDA_Device[5].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 7);
-	g_IrDA_Device[5].IrPWM		= BIT_ADDRP(&(TIM4->CCER), TIM_CCER_CC2E);
+	g_IrDA_Device[5].IrPWM		= BIT_ADDRP(&(TIM4->CCER), 4);
 	g_IrDA_Device[5].signal		= BIT_ADDRP(&(GPIOC->IDR), 7);
 
 	//实例化红外外设对象 - 第 7 路
 	g_IrDA_Device[6].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 8);
-	g_IrDA_Device[6].IrPWM		= BIT_ADDRP(&(TIM4->CCER), TIM_CCER_CC3E);
+	g_IrDA_Device[6].IrPWM		= BIT_ADDRP(&(TIM4->CCER), 8);
 	g_IrDA_Device[6].signal		= BIT_ADDRP(&(GPIOC->IDR), 8);
 
 	//实例化红外外设对象 - 第 8 路
 	g_IrDA_Device[7].IrInterrup	= BIT_ADDRP(&(EXTI->IMR), 9);
-	g_IrDA_Device[7].IrPWM		= BIT_ADDRP(&(TIM4->CCER), TIM_CCER_CC4E);
+	g_IrDA_Device[7].IrPWM		= BIT_ADDRP(&(TIM4->CCER), 12);
 	g_IrDA_Device[7].signal		= BIT_ADDRP(&(GPIOC->IDR), 9);
 
 }
@@ -210,11 +210,12 @@ void irda_decode(ir_pst ir) {
 			cnt = 0;							//清空计数器以便于测量下一段波形长度
 		}
 		lastStatus = *ir->signal;
-		delay_us(18);	// 跳过38KHz载波信号的电平反转
+		delay_us(26);	// 跳过38KHz载波信号的电平反转
 	}
-	unsigned short len = wave - ir->token + 1;	//计算波形的高电平和低电平共有多少段
+	*wave = 0;			// 数据结束标志
+	unsigned short len = wave - ir->token;	//计算波形的高电平和低电平共有多少段
 	uart_sendStr("\n\r波形数组长度:\t");
-	uart_short2char(len);						//在终端反馈数据
+	uart_short2char(len);					//在终端反馈数据
 	UART_CR();
 
 }
@@ -226,7 +227,7 @@ void irda_encode(ir_pst ir) {
 	while((cnt = *wave++)) {	//提取当前波形长度, 如果长度值有效则将发送波形, 并且将 wave 指向下一段数据
 		*ir->IrPWM ^= 1;		//电平翻转,切换 PWM 输出状态,如果之前输出是打开的则关闭, 如果之前是关闭的则打开
 		while(cnt--)
-			delay_us(18);		//计数器单位为 20us, 因为波形有38KHz载波
+			delay_us(26);		//计数器单位为 20us, 因为波形有38KHz载波
 	}
 	*ir->IrPWM = 0;
 }
