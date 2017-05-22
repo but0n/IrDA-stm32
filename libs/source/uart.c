@@ -86,9 +86,17 @@ void uart_decode(char *token) {
 		}
 		else if(gCmdCache[TOKEN_OFFSET] == TOKEN_SEND) {	// 如果这条指令是发码命令
 			uart_sendStr("号:发码开启\n\r");
-			irda_encode(&g_IrDA_Device[*token - '1']);
+			// 在发码的过程中为了防止自发自收, 得确保所有的接收中断都是关闭的, 否则中断会干扰发送
+			*g_IrDA_Device[0].IrInterrup =
+				*g_IrDA_Device[1].IrInterrup =
+				*g_IrDA_Device[2].IrInterrup =
+				*g_IrDA_Device[3].IrInterrup =
+				*g_IrDA_Device[4].IrInterrup =
+				*g_IrDA_Device[5].IrInterrup =
+				*g_IrDA_Device[6].IrInterrup =
+				*g_IrDA_Device[7].IrInterrup = 0;
+			irda_encode(&g_IrDA_Device[*token - '1']);	//发码
 		}
-			//发码
 	}
 	uart_decode(++token);
 }
