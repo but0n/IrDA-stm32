@@ -53,9 +53,11 @@ void USART1_IRQHandler(void) {
 				break;
 			case 0x08:	//退格键
 			case 0x7F:
-				pop = '\0';
-				uart_sendData(0x7F);
-				uart_sendData(0x08);
+				if(top>=0) {		// 防止指针跨域操作, 否则多次按退格键会出现bug
+					pop = '\0';
+					uart_sendData(0x7F);
+					uart_sendData(0x08);
+				}
 				break;
 			case TOKEN_START:	//$ - 命令起始标志
 				clrCache();
