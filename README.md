@@ -201,19 +201,19 @@ STM32单片机使用的 Cortex-M3 内核中搭载了一个中断响应系统, �
 并且在 NVIC 中有一个寄存器是 “应用程序中断及复位控制寄存器” (AIRCR), 它里面有一个位段名为 “优先级组”。该位段的值对每一个优先级可配置的异常都有影响 —— 把其优先级分为 2 个
 位段: MSB 所在的位段（左边的）对应抢占优先级, 而 LSB 所在的位段（右边的）对应子优先级。
 
-![](/hardware/paper0301.png)
+![](/Hardware/paper0301.png)
 
-![](/hardware/paper03010.png)
+![](/Hardware/paper03010.png)
 
 下图是应用程序中断及复位控制寄存器 (AIRCR) 地址:  0xE000_ED0C 的详细说明
 
-![](/hardware/paper0302.png)
+![](/Hardware/paper0302.png)
 
 我们所使用的 STM32 单片机的 PRIGROUP 只是用了4bit来表示:
 
-![](/hardware/paper0304.png)
+![](/Hardware/paper0304.png)
 
-![](/hardware/paper0303.png)
+![](/Hardware/paper0303.png)
 
 通过上图我们可以得到一个规律, 即 PRIGROUP 的值等于 0x07 - 优先级组别。
 
@@ -311,11 +311,11 @@ void uart_init(unsigned int pclk2, unsigned int bound) {
 - 打开 USART1 和 USART1 所使用的 GPIO 的时钟, 由于 STM32 的低功耗设计, 只有在打开时钟后才能操作对应的外设。
 - 配置 GPIO 引脚:
 
-	![](/hardware/paper030301.png)
+	![](/Hardware/paper030301.png)
 
 	在本次设计中我们使用的串口是全双工模式的, 所以根据上图要求, TX 应该配置为推挽复用输出, RX 应该配置为浮空输入或上拉输入。其中 GPIO 引脚的配置需要操作 CRL 或 CRH 寄存器, 下图是该寄存器的说明:
 
-	![](/hardware/paper030302.png)
+	![](/Hardware/paper030302.png)
 
 	通过上表我们可以看到, 推挽复用输出的值为 0b1000 (0x8), 上拉输入的值为 0b1011 (0xB), 所以就有了下面这两行配置代码:
 	```c
